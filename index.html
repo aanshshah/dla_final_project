@@ -1,7 +1,9 @@
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.95.1/js/materialize.min.js"></script>
 <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
+<script src="sentimood.js"></script>
+
+
 
 <script>
   AFRAME.registerComponent('wormhole', {
@@ -46,6 +48,8 @@
 </script>
 
 
+</script>
+
 <!-- SCENE -->
 <a-scene background="color: black;"
          renderer="antialias: true; gammaOutput: false;"
@@ -73,15 +77,46 @@
 </a-scene>
 
 
-    <script>
-      $(document).ready(function() {
+  <script type="text/javascript">
+         $(document).ready(function() {
+          wrapper();
+      });
+  
+  function speak(result, index) {
+    if(index >= result.length)
+        return;
 
-      var text = "To the Editor:I appreciate Dominic Mhiripiri’s anxiety about scientists who try to falsify their data and manipulate their results.  However I do not believe that the scientific integrity of a few individuals was Mhiripiri’s main concern in his column (“Climategate was no fluke” Sept. 7). I gathered that the main point of the column was to challenge the accuracy of the scientific study of climate change based on the misconduct of a few individuals and to characterize this field as “highly secretive.” Starting with the first misconception summaries of the Intergovernmental Panel on Climate Change (IPCC) reports are available online for anyone who cares to read them. Mhiripiri also plays the tune that climate change is a murky business and the science is not supported by clear evidence.  It’s true that certain details of climate change are complex and obscure but the larger picture is very simple and well understood.  Carbon dioxide is one of several gases that keeps in some of the Earth’s heat and makes it a livable temperature for humans.  Human activities have greatly increased the amount of carbon dioxide in the atmosphere to a point that exceeds by far anything in the last 650 thousand years.  Similar to adding another blanket this increase in carbon dioxide has and will continue to increase Earth’s average temperature.  As a result a great deal of polar ice will melt and thus raise the sea level.  Considering the large number of people who live very close to the current sea level this has catastrophic implications.  Just ask the residents of New Orleans how it was to have their city flooded.  Another result of this climate change will be increased desertification.  Farming a desert has never been easy especially now considering the increasing scarcity of fresh water.  The science is simple: global warming is real and is very bad news. It is important to ask questions and data manipulation is never acceptable but it is propagandistic to use this so-called scandal in an attempt to throw into doubt a thorough and empirically supported field of science.";
-      var msg = new SpeechSynthesisUtterance();
-      var voices = window.speechSynthesis.getVoices();
-      msg.rate = 10 / 10;
-      msg.pitch = 1;
-      msg.text = text;
-      speechSynthesis.speak(msg);
-    })
-    </script>
+    var sentence = result[index];
+    var ssu = new SpeechSynthesisUtterance();
+    ssu.text = sentence;
+    sentiment = new Sentimood();
+    analysis = sentiment.analyze(sentence);
+
+    var assets = document.getElementsByTagName('a-assets')[0];
+    var mixin = document.getElementsByTagName('a-mixin')[0];
+    
+    if (analysis['score'] < 0){
+      mixin.setAttribute('material', 'color: red');  
+    }else{
+      mixin.setAttribute('material', 'color: blue');
+    }
+    console.log(mixin);
+    
+    ssu.onend = function() {
+      console.log('ended');
+        speak(result, ++index);
+    };
+    console.log(ssu, analysis['score']);
+    window.speechSynthesis.speak(ssu);
+}
+function wrapper(ssu){
+  var text = "To the Editor:I appreciate Dominic Mhiripiri’s anxiety about scientists who try to falsify their data and manipulate their results.  However I do not believe that the scientific integrity of a few individuals was Mhiripiri’s main concern in his column (“Climategate was no fluke” Sept. 7). I gathered that the main point of the column was to challenge the accuracy of the scientific study of climate change based on the misconduct of a few individuals and to characterize this field as “highly secretive.” Starting with the first misconception summaries of the Intergovernmental Panel on Climate Change (IPCC) reports are available online for anyone who cares to read them. Mhiripiri also plays the tune that climate change is a murky business and the science is not supported by clear evidence.  It’s true that certain details of climate change are complex and obscure but the larger picture is very simple and well understood.  Carbon dioxide is one of several gases that keeps in some of the Earth’s heat and makes it a livable temperature for humans.  Human activities have greatly increased the amount of carbon dioxide in the atmosphere to a point that exceeds by far anything in the last 650 thousand years.  Similar to adding another blanket this increase in carbon dioxide has and will continue to increase Earth’s average temperature.  As a result a great deal of polar ice will melt and thus raise the sea level.  Considering the large number of people who live very close to the current sea level this has catastrophic implications.  Just ask the residents of New Orleans how it was to have their city flooded.  Another result of this climate change will be increased desertification.  Farming a desert has never been easy especially now considering the increasing scarcity of fresh water.  The science is simple: global warming is real and is very bad news. It is important to ask questions and data manipulation is never acceptable but it is propagandistic to use this so-called scandal in an attempt to throw into doubt a thorough and empirically supported field of science.";
+  var result = text.match( /[^\.!\?]+[\.!\?]+/g );
+
+  speak(result, 0, ssu);
+}
+</script>  
+
+
+
+    
